@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MLMonitor{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50 min-h-screen" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+
+  {% if user.is_authenticated %}
+  <nav class="bg-indigo-700 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-8">
+          <a href="{% url 'dashboard:home' %}" class="text-xl font-bold tracking-tight">MLMonitor</a>
+          <div class="flex gap-6 text-sm font-medium">
+            <a href="{% url 'dashboard:experiment-list' %}" class="hover:text-indigo-200 transition-colors">Experiments</a>
+            <a href="{% url 'dashboard:pipeline-list' %}" class="hover:text-indigo-200 transition-colors">Pipelines</a>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 text-sm">
+          <span class="text-indigo-200">{{ user.email }}</span>
+          <form method="post" action="{% url 'dashboard:logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="bg-indigo-800 hover:bg-indigo-900 px-3 py-1.5 rounded text-xs font-medium transition-colors">
+              Logout
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </nav>
+  {% endif %}
+
+  {% if messages %}
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4">
+    {% for message in messages %}
+    <div class="rounded-md p-4 mb-2 {% if message.tags == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-green-50 text-green-800 border border-green-200{% endif %}">
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

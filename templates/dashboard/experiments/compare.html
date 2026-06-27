@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Compare Runs — {{ experiment.name }} — MLMonitor{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav class="text-sm text-gray-500 mb-4">
+  <a href="{% url 'dashboard:experiment-list' %}" class="hover:text-indigo-600">Experiments</a>
+  <span class="mx-2">›</span>
+  <a href="{% url 'dashboard:experiment-detail' experiment.pk %}" class="hover:text-indigo-600">{{ experiment.name }}</a>
+  <span class="mx-2">›</span>
+  <span class="text-gray-900">Compare Runs</span>
+</nav>
+
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Run Comparison</h1>
+  <p class="text-gray-500 text-sm mt-1">{{ experiment.name }}</p>
+</div>
+
+{% if metric_names %}
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-base font-semibold text-gray-900">Metric</h2>
+    <div class="flex gap-2" id="metric-tabs">
+      {% for name in metric_names %}
+      <button
+        onclick="showMetric('{{ name }}')"
+        id="tab-{{ name }}"
+        class="text-xs px-3 py-1.5 rounded-full border transition-colors {% if forloop.first %}bg-indigo-600 text-white border-indigo-600{% else %}border-gray-300 text-gray-600 hover:border-indigo-400{% endif %}"
+      >
+        {{ name }}
+      </button>
+      {% endfor %}
+    </div>
+  </div>
+  <div id="compare-chart" class="w-full" style="height: 400px;"></div>
+</div>
+{% else %}
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm px-6 py-12 text-center">
+  <p class="text-gray-400 text-sm">
+    {% if not runs_data_json == "[]" %}
+    No metrics logged for the selected runs.
+    {% else %}
+    No runs selected. Go back and select runs to compare.
+    {% endif %}
+  </p>
+  <a href="{% url 'dashboard:experiment-detail' experiment.pk %}" class="mt-4 inline-block text-indigo-600 text-sm hover:underline">← Back to experiment</a>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const runsData = {{ runs_data_json|safe }};
+
+  const COLORS = ['#4f46e5', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+  function showMetric(name) {
+    const traces = runsData
+      .filter(r => r.metrics[name])
+      .map((r, i) => ({
+        x: r.metrics[name].steps,
+        y: r.metrics[name].values,
+        type: 'scatter',
+        mode: 'lines+markers',
+        name: r.name,
+        line: { color: COLORS[i % COLORS.length], width: 2 },
+        marker: { size: 5, color: COLORS[i % COLORS.length] },
+      }));
+
+    const layout = {
+      margin: { t: 20, r: 20, b: 40, l: 50 },
+      xaxis: { title: 'Step', gridcolor: '#f3f4f6' },
+      yaxis: { title: name, gridcolor: '#f3f4f6' },
+      plot_bgcolor: '#ffffff',
+      paper_bgcolor: '#ffffff',
+      font: { family: 'ui-sans-serif, system-ui, sans-serif', size: 12 },
+      legend: { orientation: 'h', y: -0.15 },
+    };
+
+    Plotly.newPlot('compare-chart', traces, layout, { responsive: true, displayModeBar: false });
+
+    document.querySelectorAll('#metric-tabs button').forEach(btn => {
+      btn.className = 'text-xs px-3 py-1.5 rounded-full border transition-colors border-gray-300 text-gray-600 hover:border-indigo-400';
+    });
+    document.getElementById('tab-' + name).className = 'text-xs px-3 py-1.5 rounded-full border transition-colors bg-indigo-600 text-white border-indigo-600';
+  }
+
+  {% if metric_names %}
+  showMetric('{{ metric_names.0 }}');
+  {% endif %}
+</script>
+{% endblock %}

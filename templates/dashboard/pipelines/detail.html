@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}{{ pipeline.name }} — MLMonitor{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<nav class="text-sm text-gray-500 mb-4">
+  <a href="{% url 'dashboard:pipeline-list' %}" class="hover:text-indigo-600">Pipelines</a>
+  <span class="mx-2">›</span>
+  <span class="text-gray-900">{{ pipeline.name }}</span>
+</nav>
+
+<!-- Pipeline header -->
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-6">
+  <div class="flex items-start justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900">{{ pipeline.name }}</h1>
+      {% if pipeline.description %}
+      <p class="text-gray-500 text-sm mt-1">{{ pipeline.description }}</p>
+      {% endif %}
+    </div>
+    <span class="text-xs text-gray-400">Created {{ pipeline.created_at|date:"M d, Y" }}</span>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+  <!-- DAG visualizer -->
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    <h2 class="text-base font-semibold text-gray-900 mb-4">DAG</h2>
+    {% if mermaid_definition %}
+    <div class="mermaid overflow-auto">
+{{ mermaid_definition }}
+    </div>
+    {% else %}
+    <p class="text-gray-400 text-sm text-center py-8">No stages defined yet.</p>
+    {% endif %}
+  </div>
+
+  <!-- Stages table -->
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+    <div class="px-6 py-4 border-b border-gray-100">
+      <h2 class="text-base font-semibold text-gray-900">Stages</h2>
+    </div>
+    {% if stages %}
+    <table class="w-full text-sm">
+      <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+        <tr>
+          <th class="px-4 py-3 text-left font-medium">Order</th>
+          <th class="px-4 py-3 text-left font-medium">Name</th>
+          <th class="px-4 py-3 text-left font-medium">Status</th>
+          <th class="px-4 py-3 text-left font-medium">Depends on</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for stage in stages %}
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3 text-gray-500">{{ stage.order }}</td>
+          <td class="px-4 py-3 font-medium text-gray-900">{{ stage.name }}</td>
+          <td class="px-4 py-3">
+            {% if stage.status == 'completed' %}
+            <span class="inline-flex items-center gap-1 bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>Completed
+            </span>
+            {% elif stage.status == 'running' %}
+            <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-xs px-2 py-0.5 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>Running
+            </span>
+            {% elif stage.status == 'failed' %}
+            <span class="inline-flex items-center gap-1 bg-red-50 text-red-700 text-xs px-2 py-0.5 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-red-500"></span>Failed
+            </span>
+            {% elif stage.status == 'skipped' %}
+            <span class="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-blue-400"></span>Skipped
+            </span>
+            {% else %}
+            <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>Pending
+            </span>
+            {% endif %}
+          </td>
+          <td class="px-4 py-3 text-gray-500 text-xs">
+            {% if stage.depends_on %}
+            {{ stage.depends_on|join:", " }}
+            {% else %}
+            <span class="text-gray-300">none</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="px-6 py-10 text-center text-gray-400 text-sm">No stages added yet.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'neutral',
+    flowchart: { curve: 'basis', useMaxWidth: true },
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — MLMonitor{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
+  <p class="text-gray-500 text-sm mt-1">Overview of your ML experiments and pipelines</p>
+</div>
+
+<!-- Stat cards -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    <p class="text-sm font-medium text-gray-500">Experiments</p>
+    <p class="text-3xl font-bold text-indigo-600 mt-1">{{ experiment_count }}</p>
+    <a href="{% url 'dashboard:experiment-list' %}" class="text-xs text-indigo-500 hover:underline mt-2 inline-block">View all →</a>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    <p class="text-sm font-medium text-gray-500">Pipelines</p>
+    <p class="text-3xl font-bold text-indigo-600 mt-1">{{ pipeline_count }}</p>
+    <a href="{% url 'dashboard:pipeline-list' %}" class="text-xs text-indigo-500 hover:underline mt-2 inline-block">View all →</a>
+  </div>
+  <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+    <p class="text-sm font-medium text-gray-500">Active Alert Rules</p>
+    <p class="text-3xl font-bold text-indigo-600 mt-1">{{ active_alert_count }}</p>
+  </div>
+</div>
+
+<!-- Recent experiments -->
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+  <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+    <h2 class="text-base font-semibold text-gray-900">Recent Experiments</h2>
+    <a href="{% url 'dashboard:experiment-list' %}" class="text-sm text-indigo-600 hover:underline">View all</a>
+  </div>
+
+  {% if recent_experiments %}
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+      <tr>
+        <th class="px-6 py-3 text-left font-medium">Name</th>
+        <th class="px-6 py-3 text-left font-medium">Tags</th>
+        <th class="px-6 py-3 text-left font-medium">Runs</th>
+        <th class="px-6 py-3 text-left font-medium">Created</th>
+        <th class="px-6 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for exp in recent_experiments %}
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="px-6 py-4 font-medium text-gray-900">{{ exp.name }}</td>
+        <td class="px-6 py-4">
+          {% for tag in exp.tags %}
+          <span class="inline-block bg-indigo-50 text-indigo-700 text-xs px-2 py-0.5 rounded-full mr-1">{{ tag }}</span>
+          {% empty %}
+          <span class="text-gray-400">—</span>
+          {% endfor %}
+        </td>
+        <td class="px-6 py-4 text-gray-600">{{ exp.runs.count }}</td>
+        <td class="px-6 py-4 text-gray-500">{{ exp.created_at|date:"M d, Y" }}</td>
+        <td class="px-6 py-4 text-right">
+          <a href="{% url 'dashboard:experiment-detail' exp.pk %}" class="text-indigo-600 hover:underline text-xs font-medium">View →</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="px-6 py-10 text-center text-gray-400 text-sm">
+    No experiments yet. Start one via the API or SDK.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Pipelines — MLMonitor{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-gray-900">Pipelines</h1>
+  <p class="text-gray-500 text-sm mt-1">Data processing and training pipeline DAGs</p>
+</div>
+
+<div class="bg-white rounded-xl border border-gray-200 shadow-sm">
+  {% if pipelines %}
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 text-gray-500 uppercase text-xs">
+      <tr>
+        <th class="px-6 py-3 text-left font-medium">Name</th>
+        <th class="px-6 py-3 text-left font-medium">Description</th>
+        <th class="px-6 py-3 text-left font-medium">Stages</th>
+        <th class="px-6 py-3 text-left font-medium">Created</th>
+        <th class="px-6 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for pipeline in pipelines %}
+      <tr class="hover:bg-gray-50 transition-colors">
+        <td class="px-6 py-4 font-medium text-gray-900">{{ pipeline.name }}</td>
+        <td class="px-6 py-4 text-gray-500">{{ pipeline.description|truncatechars:60|default:"—" }}</td>
+        <td class="px-6 py-4 text-gray-600">{{ pipeline.stages.count }}</td>
+        <td class="px-6 py-4 text-gray-500">{{ pipeline.created_at|date:"M d, Y" }}</td>
+        <td class="px-6 py-4 text-right">
+          <a href="{% url 'dashboard:pipeline-detail' pipeline.pk %}" class="text-indigo-600 hover:underline text-xs font-medium">View →</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="px-6 py-12 text-center text-gray-400 text-sm">
+    No pipelines yet. Create one via the API.
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
