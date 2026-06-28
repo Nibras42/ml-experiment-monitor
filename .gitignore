@@ -70,3 +70,6 @@ celerybeat.pid
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# AI coding assistant config (not needed to run the project)
+CLAUDE.md
