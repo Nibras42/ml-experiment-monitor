@@ -239,9 +239,9 @@ These involve advanced Django internals, async programming, or non-trivial syste
 - **Nested URL routing** - runs nested under experiments (`/experiments/<id>/runs/<id>/`) wired through a ViewSet without a router
 - **Django Channels WebSocket consumer** - async `RunMetricsConsumer` streams live metric updates to the browser in real time
 - **JWT WebSocket middleware** - custom plain ASGI3 middleware class authenticates WebSocket connections via a query-string token
-- **Celery + Redis integration** — background worker, Celery Beat periodic scheduler, and alert threshold evaluation task running every 60 seconds
-- **Signal-based notification system** — `alert_triggered` signal decouples the alerts app from the notifications app; email is dispatched as a Celery task
-- **Pipeline DAG service** — builds a `{nodes, edges}` graph from `PipelineStage` dependency data; rendered as an interactive Mermaid.js diagram
-- **HTMX partial rendering** — live experiment search returns only the table fragment, avoiding full page reloads
-- **Python SDK** (`mlmonitor`) — pip-installable client with a `Run` context manager that automatically marks runs complete or failed and logs metrics over REST
-- **Full test suite** — 100+ tests using pytest-django, factory_boy, and `WebsocketCommunicator`; `pytest.ini` and a dedicated test settings module ensure the suite runs without a live Redis instance
+- **Celery + Redis integration** - background worker, Celery Beat periodic scheduler, and alert threshold evaluation task running every 60 seconds
+- **Signal-based notification system** - `alert_triggered` signal decouples the alerts app from the notifications app; email is dispatched as a Celery task
+- **Pipeline DAG service** - builds a `{nodes, edges}` graph from `PipelineStage` dependency data; rendered as an interactive Mermaid.js diagram
+- **HTMX partial rendering** - live experiment search returns only the table fragment, avoiding full page reloads
+- **Python SDK** (`mlmonitor`) - pip-installable client with a `Run` context manager that automatically marks runs complete or failed and logs metrics over REST
+- **Full test suite** - 100+ tests using pytest-django, factory_boy, and `WebsocketCommunicator`; `pytest.ini` and a dedicated test settings module ensure the suite runs without a live Redis instance
