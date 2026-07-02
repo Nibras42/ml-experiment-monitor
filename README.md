@@ -182,3 +182,49 @@ docker compose up --build
 # Create a superuser (first time only)
 docker compose exec web python manage.py createsuperuser
 ```
+
+---
+
+## Project Breakdown
+
+The project is divided into three tiers based on complexity.
+
+### Easy — Built independently
+
+These are the foundational parts of the project that any Django developer would be comfortable setting up on their own.
+
+- Python virtual environment setup and dependency management (`requirements.txt`)
+- Django project initialization and app structure
+- Environment variable configuration (`.env`, `DJANGO_SETTINGS_MODULE`)
+- Git repository setup, `.gitignore`, and commit workflow
+- Django admin panel registrations for all models
+- Basic URL routing (`config/urls.py`, per-app `urls.py`)
+- Database migrations (`makemigrations`, `migrate`)
+
+---
+
+### Medium — Built with guidance
+
+These required understanding new patterns or making architectural decisions, done collaboratively.
+
+- Settings split into `base` / `development` / `production` / `test`
+- Custom `User` model using `AbstractBaseUser` with email as the login field
+- JWT authentication endpoints (register, login, token refresh, `/me`)
+- REST API serializers and viewset-based views for experiments, runs, metrics, alerts, and pipelines
+- HTMX-powered web dashboard (live search, partial template rendering)
+- Plotly run comparison charts and hyperparameter display
+- Railway deployment configuration and production settings
+
+---
+
+### Hard — Fully engineered
+
+These involve advanced Django internals, async programming, or non-trivial system design.
+
+- **Django Channels WebSocket consumer** — async `RunMetricsConsumer` that streams live metric updates to the browser in real time
+- **JWT WebSocket middleware** — custom plain ASGI3 middleware class that authenticates WebSocket connections via a query-string token
+- **Celery + Redis integration** — background worker, Celery Beat periodic scheduler, and alert threshold evaluation task running every 60 seconds
+- **Signal-based notification system** — `alert_triggered` signal decouples the alerts app from the notifications app; email is dispatched as a Celery task
+- **Pipeline DAG service** — builds a `{nodes, edges}` graph from `PipelineStage` dependency data; rendered as an interactive Mermaid.js diagram
+- **Python SDK** (`mlmonitor`) — pip-installable client with a `Run` context manager that automatically marks runs complete or failed and logs metrics over REST
+- **Full test suite** — 100+ tests using pytest-django, factory_boy, and `WebsocketCommunicator`; includes async WebSocket consumer tests with `transaction=True` isolation
