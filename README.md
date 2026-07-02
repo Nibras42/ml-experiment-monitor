@@ -200,14 +200,9 @@ These are the foundational parts of the project that any Django developer would 
 - Django admin panel registrations for all models
 - Basic URL routing (`config/urls.py`, per-app `urls.py`)
 - Database migrations (`makemigrations`, `migrate`)
-- Defining model fields, choices, and `__str__` methods for `Experiment`, `Run`, `Metric`, `AlertRule`, `Pipeline`, and `PipelineStage`
-- Writing basic `Meta` classes (ordering, `db_table`, `unique_together`)
-- Registering apps in `INSTALLED_APPS` and wiring `AppConfig` names
+- Defining model fields, choices, and `__str__` methods across all models
 - Setting up `LOGIN_URL` and `LOGIN_REDIRECT_URL` for the web dashboard
-- Creating the superuser and testing the Django admin panel
-- Manually testing API endpoints using the browser or a REST client
-- Structuring the `templates/` directory and writing base HTML layout (`base.html`)
-- Configuring WhiteNoise for static file serving
+- Creating the superuser and verifying the Django admin panel
 - Writing the `QUICKSTART.md` and project `README.md` documentation
 
 ---
@@ -217,23 +212,21 @@ These are the foundational parts of the project that any Django developer would 
 These required understanding new patterns or making architectural decisions, done collaboratively.
 
 - Settings split into `base` / `development` / `production` / `test`
+- Registering apps in `INSTALLED_APPS` and wiring `AppConfig` names correctly
 - Custom `User` model using `AbstractBaseUser` with email as the login field
 - `UserManager` with `create_user` and `create_superuser` methods
 - JWT authentication endpoints (register, login, token refresh, `/me`)
 - REST API serializers and viewset-based views for experiments, runs, metrics, alerts, and pipelines
-- Nested URL structure for runs under experiments (`/experiments/<id>/runs/<id>/`)
 - Scoping all querysets to `request.user` so users only see their own data
 - `Run` status lifecycle — transitioning between `pending`, `running`, `completed`, and `failed`
 - `AlertRule` model with `gt` / `lt` / `eq` condition choices and per-user scoping
-- Service layer pattern — keeping all business logic in `services.py`, views only handle request/response
-- Cross-app service calls using local imports to avoid circular dependencies
-- HTMX-powered web dashboard (live search, partial template rendering)
 - Session-based login and logout views alongside the JWT API
+- Structuring the `templates/` directory and writing the base HTML layout
 - Plotly run comparison charts and hyperparameter display
 - Pipeline stage ordering and dependency tracking
+- Configuring WhiteNoise for static file serving
 - Docker Compose setup for running the full stack locally
 - Railway deployment configuration and production settings
-- Configuring `pytest.ini` and the `test` settings module so the full suite runs without Redis
 
 ---
 
@@ -241,10 +234,14 @@ These required understanding new patterns or making architectural decisions, don
 
 These involve advanced Django internals, async programming, or non-trivial system design.
 
-- **Django Channels WebSocket consumer** — async `RunMetricsConsumer` that streams live metric updates to the browser in real time
-- **JWT WebSocket middleware** — custom plain ASGI3 middleware class that authenticates WebSocket connections via a query-string token
+- **Service layer pattern** — all business logic lives in `services.py`; views handle only request/response, keeping apps independently testable
+- **Cross-app service calls** — local imports inside service functions prevent circular dependencies while keeping apps decoupled
+- **Nested URL routing** — runs nested under experiments (`/experiments/<id>/runs/<id>/`) wired through a ViewSet without a router
+- **Django Channels WebSocket consumer** — async `RunMetricsConsumer` streams live metric updates to the browser in real time
+- **JWT WebSocket middleware** — custom plain ASGI3 middleware class authenticates WebSocket connections via a query-string token
 - **Celery + Redis integration** — background worker, Celery Beat periodic scheduler, and alert threshold evaluation task running every 60 seconds
 - **Signal-based notification system** — `alert_triggered` signal decouples the alerts app from the notifications app; email is dispatched as a Celery task
 - **Pipeline DAG service** — builds a `{nodes, edges}` graph from `PipelineStage` dependency data; rendered as an interactive Mermaid.js diagram
+- **HTMX partial rendering** — live experiment search returns only the table fragment, avoiding full page reloads
 - **Python SDK** (`mlmonitor`) — pip-installable client with a `Run` context manager that automatically marks runs complete or failed and logs metrics over REST
-- **Full test suite** — 100+ tests using pytest-django, factory_boy, and `WebsocketCommunicator`; includes async WebSocket consumer tests with `transaction=True` isolation
+- **Full test suite** — 100+ tests using pytest-django, factory_boy, and `WebsocketCommunicator`; `pytest.ini` and a dedicated test settings module ensure the suite runs without a live Redis instance
