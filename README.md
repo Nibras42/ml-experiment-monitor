@@ -189,7 +189,7 @@ docker compose exec web python manage.py createsuperuser
 
 The project is divided into three tiers based on complexity.
 
-### Easy — Built independently
+### Easy - Built independently
 
 These are the foundational parts of the project that any Django developer would be comfortable setting up on their own.
 
@@ -207,7 +207,7 @@ These are the foundational parts of the project that any Django developer would 
 
 ---
 
-### Medium — Built with guidance
+### Medium - Built with guidance
 
 These required understanding new patterns or making architectural decisions, done collaboratively.
 
@@ -218,7 +218,7 @@ These required understanding new patterns or making architectural decisions, don
 - JWT authentication endpoints (register, login, token refresh, `/me`)
 - REST API serializers and viewset-based views for experiments, runs, metrics, alerts, and pipelines
 - Scoping all querysets to `request.user` so users only see their own data
-- `Run` status lifecycle — transitioning between `pending`, `running`, `completed`, and `failed`
+- `Run` status lifecycle - transitioning between `pending`, `running`, `completed`, and `failed`
 - `AlertRule` model with `gt` / `lt` / `eq` condition choices and per-user scoping
 - Session-based login and logout views alongside the JWT API
 - Structuring the `templates/` directory and writing the base HTML layout
@@ -230,15 +230,15 @@ These required understanding new patterns or making architectural decisions, don
 
 ---
 
-### Hard — Fully engineered
+### Hard - Fully engineered
 
 These involve advanced Django internals, async programming, or non-trivial system design.
 
-- **Service layer pattern** — all business logic lives in `services.py`; views handle only request/response, keeping apps independently testable
-- **Cross-app service calls** — local imports inside service functions prevent circular dependencies while keeping apps decoupled
-- **Nested URL routing** — runs nested under experiments (`/experiments/<id>/runs/<id>/`) wired through a ViewSet without a router
-- **Django Channels WebSocket consumer** — async `RunMetricsConsumer` streams live metric updates to the browser in real time
-- **JWT WebSocket middleware** — custom plain ASGI3 middleware class authenticates WebSocket connections via a query-string token
+- **Service layer pattern** - all business logic lives in `services.py`; views handle only request/response, keeping apps independently testable
+- **Cross-app service calls** - local imports inside service functions prevent circular dependencies while keeping apps decoupled
+- **Nested URL routing** - runs nested under experiments (`/experiments/<id>/runs/<id>/`) wired through a ViewSet without a router
+- **Django Channels WebSocket consumer** - async `RunMetricsConsumer` streams live metric updates to the browser in real time
+- **JWT WebSocket middleware** - custom plain ASGI3 middleware class authenticates WebSocket connections via a query-string token
 - **Celery + Redis integration** — background worker, Celery Beat periodic scheduler, and alert threshold evaluation task running every 60 seconds
 - **Signal-based notification system** — `alert_triggered` signal decouples the alerts app from the notifications app; email is dispatched as a Celery task
 - **Pipeline DAG service** — builds a `{nodes, edges}` graph from `PipelineStage` dependency data; rendered as an interactive Mermaid.js diagram
